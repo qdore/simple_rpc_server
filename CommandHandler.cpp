@@ -2,7 +2,7 @@
 *     File Name           :     CommandHandler.cpp
 *     Created By          :     QiangWei
 *     Creation Date       :     [2015-04-15 13:35]
-*     Last Modified       :     [2015-04-15 14:57]
+*     Last Modified       :     [2015-04-15 15:14]
 *     Description         :      
 **********************************************************************************/
 
@@ -13,6 +13,8 @@
 #include <vector>
 
 using std::string;
+
+namespace chl {
 
 //去尾部空白字符
 inline string rtrim(string ss) 
@@ -83,5 +85,6 @@ void CommandHandler::handle_read(boost::asio::ip::tcp::socket* socket,
         delete[] __data;
         delete socket;
     }
-    
+}
+
 }

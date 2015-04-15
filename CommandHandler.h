@@ -8,6 +8,8 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 
+namespace chl {
+
 class CommandHandler
 {
 public:
@@ -37,4 +39,5 @@ private:
     CommandHandler& operator=(const CommandHandler& chl);
 };
 
+}
 #endif

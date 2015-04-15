@@ -2,7 +2,7 @@
 *     File Name           :     main.cpp
 *     Created By          :     QiangWei
 *     Creation Date       :     [2015-04-15 13:50]
-*     Last Modified       :     [2015-04-15 15:03]
+*     Last Modified       :     [2015-04-15 15:14]
 *     Description         :      
 **********************************************************************************/
 
@@ -28,7 +28,7 @@ void print3()
 int main()
 {
     boost::asio::io_service io;
-    CommandHandler ch(io);
+    chl::CommandHandler ch(io, 33333);
     ch.bind_command_with_func("haha", boost::bind(&print));
     ch.bind_command_with_func("ahah", boost::bind(&print2));
     ch.bind_command_with_func("qw", boost::bind(&print3));
