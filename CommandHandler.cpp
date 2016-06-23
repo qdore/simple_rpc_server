@@ -1,34 +1,25 @@
-/*********************************************************************************
-*     File Name           :     CommandHandler.cpp
-*     Created By          :     QiangWei
-*     Creation Date       :     [2015-04-15 13:35]
-*     Last Modified       :     [2015-04-15 15:14]
-*     Description         :      
-**********************************************************************************/
+/***************************************************************************
+ * 
+ * Copyright (c) 2016 Baidu.com, Inc. All Rights Reserved
+ * $Id$ 
+ * 
+ **************************************************************************/
+ 
+ /**
+ * @file CommandHandler.cpp
+ * @author qiangwei(qiangwei@baidu.com)
+ * @date 2016/06/23 15:16:17
+ * @version $Revision$ 
+ * @brief 
+ *  
+ **/
 
 #include "CommandHandler.h"
-#include <cctype>
-#include <iostream>
-#include <string>
-#include <vector>
-
-using std::string;
 
 namespace chl {
 
-//去尾部空白字符
-inline string rtrim(string ss) 
-{ 
-    int (*pf)(int) = std::iscntrl; 
-    string::reverse_iterator p = find_if(ss.rbegin(), ss.rend(),
-            not1(std::ptr_fun(pf))); 
-    ss.erase(p.base(), ss.end()); 
-    return ss;
-} 
-
-CommandHandler::CommandHandler(boost::asio::io_service& io, int port_number) :
-    __io_service(io), __acceptor(io, boost::asio::ip::tcp::endpoint(
-                boost::asio::ip::tcp::v4(), port_number))
+CommandHandler::CommandHandler(boost::asio::io_service& io, std::string local_socket) :
+    __io_service(io), __acceptor(io, boost::asio::local::stream_protocol::endpoint(local_socket))
 {
     start_listen();
 }
@@ -41,14 +32,14 @@ void CommandHandler::bind_command_with_func(const std::string& command,
 
 void CommandHandler::start_listen()
 {
-    boost::asio::ip::tcp::socket* new_socket =
-            new boost::asio::ip::tcp::socket(__io_service);
+    boost::asio::local::stream_protocol::socket* new_socket =
+            new boost::asio::local::stream_protocol::socket(__io_service);
     __acceptor.async_accept(*new_socket,
             boost::bind(&CommandHandler::handle_accept, this, new_socket,
                 boost::asio::placeholders::error));
 }
 
-void CommandHandler::handle_accept(boost::asio::ip::tcp::socket* socket,
+void CommandHandler::handle_accept(boost::asio::local::stream_protocol::socket* socket,
         const boost::system::error_code& error)
 {
     if (!error) {
@@ -65,9 +56,8 @@ void CommandHandler::handle_accept(boost::asio::ip::tcp::socket* socket,
 }
 
 void CommandHandler::process_command(const std::string& command,
-        boost::asio::ip::tcp::socket* socket) {
+        boost::asio::local::stream_protocol::socket* socket) {
     std::string ret(__comand_and_funcs[command]());
-    std::cout << "scker" << std::endl;
     boost::system::error_code ignored_error;
     socket->write_some(boost::asio::buffer(ret), ignored_error);
     if (socket != NULL) {
@@ -76,12 +66,12 @@ void CommandHandler::process_command(const std::string& command,
     }
 }
 
-void CommandHandler::handle_read(boost::asio::ip::tcp::socket* socket,
+void CommandHandler::handle_read(boost::asio::local::stream_protocol::socket* socket,
         char* __data, const boost::system::error_code& error,
         size_t bytes)
 {
     if (!error) {
-        std::string command(rtrim(__data));
+        std::string command(boost::trim_copy(std::string(__data)));
         if (__data != NULL) {
             delete[] __data;
             __data = NULL;
@@ -114,3 +104,5 @@ void CommandHandler::handle_read(boost::asio::ip::tcp::socket* socket,
 }
 
 }
+
+/* vim: set ts=4 sw=4 sts=4 tw=100 */

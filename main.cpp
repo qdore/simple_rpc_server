@@ -28,7 +28,8 @@ std::string print3()
 int main()
 {
     boost::asio::io_service io;
-    chl::CommandHandler ch(io, 33334);
+    ::unlink(".chl");
+    chl::CommandHandler ch(io, ".chl");
     ch.bind_command_with_func("haha", boost::bind(&print));
     ch.bind_command_with_func("ahah", boost::bind(&print2));
     ch.bind_command_with_func("qw", boost::bind(&print3));
