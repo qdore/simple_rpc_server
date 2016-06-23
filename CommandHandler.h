@@ -19,7 +19,7 @@ public:
 
     void start_listen();          //开始监听端口
     void bind_command_with_func(const std::string& command,
-            const boost::function<void()>& func);
+            const boost::function<std::string()>& func);
 
 protected:
     void handle_accept(boost::asio::ip::tcp::socket* socket,
@@ -29,9 +29,12 @@ protected:
             const boost::system::error_code& error, size_t bytes);
 
 private:
+    void process_command(const std::string& command,
+            boost::asio::ip::tcp::socket* socket);
+
     boost::asio::io_service& __io_service;
     boost::asio::ip::tcp::acceptor __acceptor;
-    boost::unordered_map<std::string, boost::function<void()> > __comand_and_funcs;
+    boost::unordered_map<std::string, boost::function<std::string()> > __comand_and_funcs;
     static const int __port_number = 22341;     //默认绑定的端口号
     enum { max_length = 128 };
 

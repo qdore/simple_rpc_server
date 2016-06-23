@@ -34,7 +34,7 @@ CommandHandler::CommandHandler(boost::asio::io_service& io, int port_number) :
 }
 
 void CommandHandler::bind_command_with_func(const std::string& command,
-        const boost::function<void()>& func)
+        const boost::function<std::string()>& func)
 {
     __comand_and_funcs.insert(std::make_pair(command, func));
 }
@@ -64,26 +64,52 @@ void CommandHandler::handle_accept(boost::asio::ip::tcp::socket* socket,
     this->start_listen();
 }
 
+void CommandHandler::process_command(const std::string& command,
+        boost::asio::ip::tcp::socket* socket) {
+    std::string ret(__comand_and_funcs[command]());
+    std::cout << "scker" << std::endl;
+    boost::system::error_code ignored_error;
+    socket->write_some(boost::asio::buffer(ret), ignored_error);
+    if (socket != NULL) {
+        delete socket;
+        socket = NULL;
+    }
+}
+
 void CommandHandler::handle_read(boost::asio::ip::tcp::socket* socket,
         char* __data, const boost::system::error_code& error,
         size_t bytes)
 {
     if (!error) {
-        string command(rtrim(__data));
+        std::string command(rtrim(__data));
+        if (__data != NULL) {
+            delete[] __data;
+            __data = NULL;
+        }
         if (__comand_and_funcs.find(command) != __comand_and_funcs.end())
         {
-            boost::thread t1(__comand_and_funcs[command]);
+            boost::thread t1(boost::bind(&CommandHandler::process_command, this, command, socket));
             t1.detach();
         }
-        memset(__data, 0, sizeof (char) * max_length);
-        socket->async_read_some(boost::asio::buffer(__data, max_length),
-                boost::bind(&CommandHandler::handle_read, this,
-                    socket, __data, boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
+        else {
+            boost::system::error_code ignored_error;
+            socket->write_some(boost::asio::buffer(std::string("error: this command [")
+                        + command + "] not found!"), ignored_error);
+            if (socket != NULL) {
+                delete socket;
+                socket = NULL;
+            }
+        }
     }
     else {
-        delete[] __data;
-        delete socket;
+        if (__data != NULL) {
+            delete[] __data;
+            __data = NULL;
+        }
+        if (socket != NULL) {
+            delete socket;
+            socket = NULL;
+        }
     }
 }
 

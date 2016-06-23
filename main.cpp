@@ -11,24 +11,24 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 
-void print()
+std::string print()
 {
-    std::cout << 123 << std::endl;
+    return "haha";
 }
 
-void print2()
+std::string print2()
 {
-    std::cout << 321 << std::endl;
+    return "ahah";
 }
 
-void print3()
+std::string print3()
 {
-    std::cout << "qwqw" << std::endl;
+    return "qw";
 }
 int main()
 {
     boost::asio::io_service io;
-    chl::CommandHandler ch(io, 33333);
+    chl::CommandHandler ch(io, 33334);
     ch.bind_command_with_func("haha", boost::bind(&print));
     ch.bind_command_with_func("ahah", boost::bind(&print2));
     ch.bind_command_with_func("qw", boost::bind(&print3));
